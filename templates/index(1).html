@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FreeFire BR Bot Panel</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%A5%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Arabic:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<style>
+:root{
+  --bg:#0a0d1e; --bg2:#0e1230; --card:#161a38; --card2:#1d2250; --card3:#232a5e;
+  --line:rgba(124,108,255,.16); --line2:rgba(255,255,255,.07); --line3:rgba(124,108,255,.4);
+  --primary:#7c5cff; --primary2:#6366f1; --blue:#4f6bff; --cyan:#38bdf8;
+  --accent:#ff6b4a; --accent2:#ff9a5c;
+  --grad:linear-gradient(135deg,#7c5cff,#4f46e5);
+  --grad-accent:linear-gradient(90deg,#ff6b4a,#ff9a5c);
+  --grad-soft:linear-gradient(135deg,rgba(124,92,255,.22),rgba(79,107,255,.18));
+  --ok:#34d399; --warn:#fbbf24; --err:#f87171;
+  --text:#eef0ff; --dim:#8a90b8; --dim2:#6b7099;
+  --ease:.3s cubic-bezier(.2,.8,.2,1); --r:16px;
+  --nav-h:64px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;scrollbar-width:thin;scrollbar-color:#4b4fa8 transparent}
+html,body{height:100%}
+body{font-family:'Plus Jakarta Sans','Noto Sans Arabic','Noto Sans Devanagari',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;display:flex;flex-direction:column;max-width:100vw}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:#3a3f7a;border-radius:9px}
+
+.bg{position:fixed;inset:0;z-index:-1;background:
+  radial-gradient(ellipse at 15% -5%,#2a1a5e 0%,transparent 50%),
+  radial-gradient(ellipse at 95% 8%,#132a66 0%,transparent 45%),
+  radial-gradient(ellipse at 50% 110%,#241a52 0%,transparent 55%),
+  var(--bg)}
+.bg::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(124,108,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(124,108,255,.05) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse at 50% 20%,#000,transparent 75%);mask-image:radial-gradient(ellipse at 50% 20%,#000,transparent 75%)}
+
+/* ===== APP BAR ===== */
+.appbar{display:flex;align-items:center;gap:12px;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));background:rgba(12,15,38,.82);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);flex-shrink:0;z-index:30;position:relative}
+.appbar::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(124,92,255,.5),transparent)}
+.ab-left{display:flex;align-items:center;gap:11px;min-width:0;flex:1}
+.ab-logo{width:40px;height:40px;border-radius:12px;background:var(--grad);display:grid;place-items:center;font-size:17px;color:#fff;box-shadow:0 8px 22px rgba(99,102,241,.45);flex-shrink:0}
+.ab-title{min-width:0}
+.ab-title b{display:block;font-size:15.5px;font-weight:800;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(90deg,#fff,#c4b5fd);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.ab-title small{display:block;font-size:10.5px;font-weight:600;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ab-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.pill{display:flex;align-items:center;gap:7px;padding:7px 11px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-size:11.5px;font-weight:700}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok);animation:pulse 2s infinite}
+.pill.off .dot{background:var(--err);box-shadow:0 0 10px var(--err)}
+.lang{height:38px;padding:0 8px;border-radius:11px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;outline:none;max-width:96px;flex-shrink:0}
+.lang option{background:#12162e;color:#fff}
+
+/* ===== MAIN / PAGES ===== */
+.main{flex:1;position:relative;min-height:0;overflow:hidden}
+.page{position:absolute;inset:0;overflow-y:auto;padding:16px 16px calc(var(--nav-h) + 26px);display:none;-webkit-overflow-scrolling:touch}
+.page.active{display:block;animation:fade .4s ease}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}}
+@keyframes pulse{50%{box-shadow:0 0 20px rgba(56,189,248,.55)}}
+@keyframes floaty{50%{transform:translateY(-4px)}}
+@keyframes flow{to{background-position:200% 0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.page-title{font-size:22px;font-weight:800;letter-spacing:.2px}
+.page-sub{color:var(--dim);font-size:12.5px;margin-top:3px}
+.row{display:flex;gap:9px;flex-wrap:wrap}
+
+/* welcome strip */
+.welcome{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.welcome-txt{flex:1;min-width:0}
+.welcome-txt b{display:block;font-size:19px;font-weight:800}
+.welcome-txt span{font-size:12.5px;color:var(--dim)}
+.welcome-txt span strong{color:var(--cyan);font-weight:700}
+.icon-btn{width:42px;height:42px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:15px;cursor:pointer;transition:var(--ease);display:grid;place-items:center;flex-shrink:0}
+.icon-btn:hover{border-color:var(--primary);background:var(--card2);transform:translateY(-2px)}
+
+/* ===== STAT CARDS ===== */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat-card{background:var(--card);border:1px solid var(--line2);border-radius:var(--r);padding:15px;position:relative;overflow:hidden;transition:var(--ease)}
+.stat-card::before{content:'';position:absolute;right:-40px;top:-40px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(124,92,255,.22),transparent 70%)}
+.stat-card:hover{border-color:var(--line3);transform:translateY(-3px)}
+.sc-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.sc-top span{font-size:9.5px;font-weight:800;letter-spacing:.6px;color:var(--dim);text-transform:uppercase;line-height:1.3}
+.sc-top i{font-size:14px;color:var(--cyan);flex-shrink:0}
+.sc-val{font-family:'JetBrains Mono',monospace;font-size:clamp(20px,6vw,26px);font-weight:700;word-break:break-all;background:linear-gradient(90deg,#fff,#c4b5fd);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sc-foot{font-size:10.5px;font-weight:600;color:var(--cyan);margin-top:6px}
+
+/* ===== PANEL ===== */
+.panel{background:var(--card);border:1px solid var(--line2);border-radius:var(--r);padding:16px;margin-bottom:16px;transition:var(--ease)}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.panel-head b{font-size:14px;font-weight:800}
+.panel-head span{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--dim)}
+.link-btn{background:none;border:0;color:var(--cyan);font-size:12px;font-weight:700;cursor:pointer;padding:4px 6px;border-radius:8px;transition:var(--ease)}
+.link-btn:hover{background:rgba(56,189,248,.1)}
+
+.breakdown{display:flex;flex-direction:column;gap:2px}
+.bd-row{display:flex;align-items:center;gap:10px;padding:11px 4px;font-size:13px;font-weight:600;border-bottom:1px solid var(--line2)}
+.bd-row:last-child{border:0}
+.bd-dot{width:9px;height:9px;border-radius:50%;background:var(--c,var(--dim));box-shadow:0 0 10px var(--c,var(--dim));flex-shrink:0}
+.bd-row b{margin-inline-start:auto;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--text)}
+
+.mini-list{display:flex;flex-direction:column;gap:9px}
+.mini-row{display:flex;align-items:center;gap:11px;padding:11px;border-radius:12px;background:rgba(5,7,22,.45);border:1px solid var(--line2)}
+.mini-av{width:38px;height:38px;border-radius:11px;background:var(--grad-soft);border:1px solid var(--line);display:grid;place-items:center;color:var(--cyan);font-size:15px;flex-shrink:0}
+.mini-info{min-width:0;flex:1}
+.mini-info b{display:block;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-info span{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--dim)}
+.mini-badge{padding:5px 9px;border-radius:8px;font-size:9.5px;font-weight:800;border:1px solid;flex-shrink:0}
+
+/* ===== BUTTONS ===== */
+.btn{padding:11px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;transition:var(--ease);display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{border-color:var(--primary);background:var(--card2);transform:translateY(-2px)}
+.btn.primary{background:var(--grad);border:0;color:#fff;box-shadow:0 8px 24px rgba(99,102,241,.4)}
+.btn.primary:hover{box-shadow:0 10px 30px rgba(99,102,241,.6)}
+.btn.gold{background:linear-gradient(135deg,#f0b90b,#f59e0b);color:#1a1300;border:0;box-shadow:0 8px 24px rgba(240,185,11,.35)}
+.btn.danger{border-color:rgba(248,113,113,.35);color:var(--err)}
+.btn.danger:hover{background:rgba(248,113,113,.12);border-color:var(--err)}
+.btn.block{width:100%}
+
+/* ===== SEARCH / FILTERS ===== */
+.search{position:relative;margin-bottom:12px}
+.search i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:13px}
+.search input{width:100%;padding:13px 14px 13px 40px;border-radius:13px;border:1px solid var(--line);background:rgba(5,7,22,.55);color:#fff;font-size:13.5px;outline:none;transition:var(--ease)}
+.search input::placeholder{color:var(--dim2)}
+.search input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(124,92,255,.18)}
+
+.filter-row{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px}
+.seg{display:flex;gap:5px;padding:4px;border-radius:13px;background:rgba(5,7,22,.55);border:1px solid var(--line);flex-shrink:0}
+.seg button{border:0;background:none;color:var(--dim);padding:8px 15px;border-radius:10px;cursor:pointer;font-size:12.5px;font-weight:700;white-space:nowrap;transition:var(--ease)}
+.seg button:hover{color:#fff}
+.seg button.active{color:#fff;background:var(--grad);box-shadow:0 6px 16px rgba(99,102,241,.4)}
+
+.row-actions{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:9px;margin-bottom:14px}
+.row-actions .btn{padding:12px 8px;font-size:12.5px}
+
+/* ===== BATCH IMPORT ===== */
+.batch-box{margin-bottom:16px;border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(14,165,233,.05));overflow:hidden}
+.batch-toggle{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none}
+.batch-toggle i.lead{color:var(--cyan);font-size:15px}
+.batch-toggle b{font-size:13.5px;font-weight:800;flex:1}
+.batch-toggle .chev{transition:var(--ease);color:var(--dim)}
+.batch-box.open .batch-toggle .chev{transform:rotate(180deg)}
+.batch-body{display:none;padding:0 16px 16px}
+.batch-box.open .batch-body{display:block;animation:fade .3s ease}
+.batch-sub{font-size:11.5px;color:var(--dim);margin-bottom:14px;line-height:1.5}
+.batch-sub b{color:var(--text)}
+.batch-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.batch-grid .file-field{grid-column:1/-1}
+.batch-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:2px}
+.batch-preview{margin-top:12px;padding:11px 13px;border-radius:11px;background:rgba(5,7,22,.5);border:1px solid var(--line);font-size:11.5px;color:var(--dim);line-height:1.5}
+.batch-preview strong{color:var(--text)}
+
+/* ===== ACCOUNT NODES ===== */
+.grid{display:grid;grid-template-columns:1fr;gap:13px}
+.node{background:var(--card);border:1px solid var(--line2);border-radius:var(--r);padding:15px;position:relative;overflow:hidden;transition:var(--ease);animation:rise .5s ease backwards}
+.node::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad)}
+.node:hover{border-color:var(--line3);background:var(--card2)}
+.node-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
+.who{display:flex;align-items:center;gap:11px;min-width:0}
+.avatar{position:relative;width:44px;height:44px;flex-shrink:0;border-radius:13px;background:var(--grad-soft);border:1px solid var(--line3);display:grid;place-items:center;color:var(--cyan);font-size:18px}
+.lvl{position:absolute;right:-6px;bottom:-6px;padding:2px 6px;border-radius:7px;font-size:9px;font-weight:800;font-family:'JetBrains Mono',monospace;background:var(--grad);border:2px solid var(--card)}
+.name{font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:7px;min-width:0}
+.name .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bot-tag{padding:2px 6px;border-radius:6px;font-size:8.5px;font-weight:800;letter-spacing:.5px;color:#fff;background:var(--grad-accent);flex-shrink:0}
+.region{padding:2px 7px;border-radius:6px;font-size:9px;font-weight:800;color:var(--primary);background:rgba(124,92,255,.15);border:1px solid rgba(124,92,255,.3);flex-shrink:0}
+.uid{display:flex;align-items:center;gap:7px;margin-top:4px;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:10.5px}
+.uid i{cursor:pointer}.uid i:hover{color:#fff}
+.badge{padding:6px 10px;border-radius:9px;font-size:10px;font-weight:800;display:inline-flex;align-items:center;gap:6px;border:1px solid;flex-shrink:0;white-space:nowrap}
+.s-online{color:var(--ok);background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.3)}
+.s-match{color:var(--cyan);background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.4);box-shadow:0 0 14px rgba(56,189,248,.22)}
+.s-paused{color:var(--dim);background:rgba(138,144,184,.1);border-color:rgba(138,144,184,.3)}
+.s-error{color:var(--err);background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.3)}
+
+.node-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.tag{padding:5px 10px;border-radius:8px;font-size:10px;font-weight:700;background:rgba(5,7,22,.5);border:1px solid var(--line2);color:var(--dim);display:inline-flex;align-items:center;gap:5px}
+.tag.mode{color:var(--primary);border-color:rgba(124,92,255,.3);background:rgba(124,92,255,.1)}
+.tag.live{color:var(--accent);border-color:rgba(255,107,74,.3);background:rgba(255,107,74,.1)}
+
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:13px}
+.metric{padding:10px 9px;border-radius:11px;background:rgba(5,7,22,.5);border:1px solid var(--line2);min-width:0}
+.metric span{display:block;color:var(--dim);font-size:9.5px;font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+.metric strong{display:block;font-family:'JetBrains Mono',monospace;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.metric.gain strong{color:var(--ok)}
+
+.prog-top,.prog-bot{display:flex;justify-content:space-between;font-size:10.5px;color:var(--dim);font-weight:600}
+.prog-bot{font-family:'JetBrains Mono',monospace;margin-top:6px}
+.prog-bot .pct{color:var(--accent);font-weight:700}
+.track{height:8px;margin-top:7px;background:rgba(5,7,22,.7);border-radius:9px;overflow:hidden}
+.fill{height:100%;background:var(--grad-accent);transition:width .8s ease;border-radius:9px;background-size:200% 100%;animation:flow 3s linear infinite;box-shadow:0 0 12px rgba(255,107,74,.6)}
+
+.node-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px;padding-top:12px;border-top:1px solid var(--line2)}
+.time{color:var(--dim);font-size:11px;display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace}
+.acts{display:flex;gap:6px}
+.act{width:33px;height:33px;border-radius:10px;border:1px solid var(--line);background:rgba(5,7,22,.4);color:var(--dim);cursor:pointer;font-size:12px;transition:var(--ease);display:grid;place-items:center}
+.act:disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
+.act:hover{color:#fff;border-color:var(--primary);background:rgba(124,92,255,.15);transform:translateY(-2px)}
+.act.danger:hover{color:var(--err);border-color:var(--err);background:rgba(248,113,113,.1)}
+.act.on{color:var(--ok);border-color:rgba(52,211,153,.45)}
+.empty{grid-column:1/-1;text-align:center;padding:52px 16px;color:var(--dim)}
+.empty i{font-size:30px;margin-bottom:14px;color:var(--primary);display:block}
+.empty .btn{margin-top:16px}
+
+/* ===== TERMINAL ===== */
+.term{display:flex;flex-direction:column;border-radius:var(--r);border:1px solid var(--line);background:rgba(5,7,22,.82);overflow:hidden;height:calc(100vh - 260px);min-height:300px}
+.term-head{padding:12px 16px;border-bottom:1px solid var(--line);background:rgba(20,24,58,.7);font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--cyan);display:flex;align-items:center;gap:8px}
+.term-head::before{content:'';width:9px;height:9px;border-radius:50%;background:#f87171;box-shadow:16px 0 0 #fbbf24,32px 0 0 #34d399;margin-right:44px}
+.term-body{padding:14px 16px;overflow-y:auto;flex:1;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.75;color:#d4d7f5;direction:ltr;text-align:left}
+.log{display:flex;gap:9px;margin-bottom:4px;word-break:break-word;padding:1px 4px;border-radius:6px}
+.log:hover{background:rgba(124,92,255,.08)}
+.log-ts{color:var(--primary);flex-shrink:0}
+.log-msg.success{color:var(--ok)}.log-msg.warning{color:var(--warn)}.log-msg.error{color:var(--err)}
+
+/* ===== PROFILE ===== */
+.hero{border-radius:var(--r);border:1px solid var(--line);background:var(--card);overflow:hidden;margin-bottom:14px}
+.hero-banner{height:96px;background:linear-gradient(120deg,#6d28d9,#4f46e5,#0ea5e9,#6d28d9);background-size:200% 100%;animation:flow 10s linear infinite;position:relative}
+.hero-banner::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 0%,rgba(255,255,255,.25),transparent 55%)}
+.hero-body{display:flex;align-items:flex-end;gap:14px;padding:0 18px 18px;margin-top:-38px;flex-wrap:wrap;position:relative}
+.hero-avatar{width:80px;height:80px;border-radius:22px;background:var(--grad);border:4px solid var(--card);display:grid;place-items:center;font-size:26px;font-weight:800;letter-spacing:1px;box-shadow:0 12px 30px rgba(99,102,241,.5);flex-shrink:0;animation:floaty 5s ease-in-out infinite}
+.hero-name{font-size:21px;font-weight:800}
+.hero-tag{color:var(--dim);font-size:12.5px;margin-top:3px}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-inline-start:auto}
+.chip{padding:6px 11px;border-radius:99px;font-size:11.5px;font-weight:700;border:1px solid var(--line3);background:var(--grad-soft);display:inline-flex;align-items:center;gap:6px}
+.chip i{color:var(--cyan)}
+.info{background:var(--card);border:1px solid var(--line2);border-radius:var(--r);padding:4px 18px;margin-top:14px}
+.info-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line2);font-size:13px}
+.info-row:last-child{border:0}
+.info-row span{color:var(--dim)}.info-row b{font-weight:700;text-align:right}
+
+/* ===== DONATE ===== */
+.donate{display:flex;flex-direction:column;gap:14px}
+.d-card{background:var(--card);border:1px solid var(--line2);border-radius:var(--r);padding:20px;position:relative;overflow:hidden}
+.d-card::before{content:'';position:absolute;right:-50px;top:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(240,185,11,.2),transparent 65%)}
+.d-heart{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:22px;color:#fff;background:linear-gradient(135deg,#ec4899,#8b5cf6);box-shadow:0 10px 28px rgba(236,72,153,.4);margin-bottom:16px;animation:floaty 4s ease-in-out infinite}
+.d-card h2{font-size:19px;font-weight:800;margin-bottom:8px}
+.d-card p{color:var(--dim);font-size:13px;line-height:1.6}
+.d-label{display:flex;align-items:center;gap:8px;margin:20px 0 10px;font-size:11.5px;font-weight:700;color:#f0b90b}
+.d-id{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-radius:13px;background:rgba(5,7,22,.6);border:1px solid rgba(240,185,11,.35)}
+.d-id code{font-family:'JetBrains Mono',monospace;font-size:clamp(18px,5vw,24px);font-weight:700;letter-spacing:2px;background:linear-gradient(90deg,#fde68a,#f0b90b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.steps{list-style:none;counter-reset:st;display:flex;flex-direction:column;gap:13px;margin-top:6px}
+.steps li{counter-increment:st;display:flex;gap:12px;align-items:flex-start;font-size:13px;line-height:1.5}
+.steps li::before{content:counter(st);flex-shrink:0;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;font-size:11px;font-weight:800;background:var(--grad);color:#fff}
+.d-note{margin-top:18px;padding:12px 14px;border-radius:12px;font-size:12px;color:var(--warn);background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);line-height:1.5}
+
+/* ===== BOTTOM NAV ===== */
+.bottomnav{position:absolute;left:0;right:0;bottom:0;height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;align-items:stretch;background:rgba(12,15,38,.94);backdrop-filter:blur(20px);border-top:1px solid var(--line);z-index:40}
+.bottomnav::before{content:'';position:absolute;left:0;right:0;top:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(124,92,255,.5),transparent)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:0;background:none;color:var(--dim);cursor:pointer;font-size:9.5px;font-weight:700;transition:var(--ease);position:relative;padding:8px 2px}
+.nav-item i{font-size:17px;transition:var(--ease)}
+.nav-item:hover{color:#fff}
+.nav-item.active{color:#fff}
+.nav-item.active i{color:var(--cyan);transform:translateY(-1px)}
+.nav-item.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:3px;border-radius:0 0 4px 4px;background:var(--grad);box-shadow:0 0 12px var(--primary)}
+
+/* ===== MODALS ===== */
+.modal{position:fixed;inset:0;z-index:100;background:rgba(3,4,16,.8);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:var(--ease)}
+.modal.active{opacity:1;pointer-events:all}
+.card{width:100%;max-width:480px;max-height:90vh;overflow-y:auto;background:linear-gradient(180deg,#141838,#0e1230);border:1px solid var(--line3);border-radius:22px 22px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom));transform:translateY(40px);transition:var(--ease);box-shadow:0 -20px 60px rgba(0,0,0,.6);position:relative}
+.card::before{content:'';position:absolute;left:50%;transform:translateX(-50%);top:9px;width:42px;height:4px;border-radius:9px;background:rgba(255,255,255,.18)}
+.modal.active .card{transform:none}
+.card h2{font-size:19px;font-weight:800;margin:8px 0 6px;display:flex;align-items:center;gap:9px}
+.card>p{color:var(--dim);font-size:12.5px;margin-bottom:18px;line-height:1.5}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:11.5px;font-weight:700;color:var(--cyan);margin-bottom:7px;letter-spacing:.2px}
+.field input,.field select,.field textarea{width:100%;padding:13px;border-radius:12px;background:rgba(5,7,22,.6);border:1px solid var(--line);color:#fff;font-size:14px;outline:none;transition:var(--ease)}
+.field textarea{min-height:96px;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:12px}
+.field select option{background:#12162e}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(124,92,255,.18)}
+.card-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:22px;flex-wrap:wrap}
+.card-actions .btn{flex:1;min-width:90px}
+
+.auto-check{display:flex;align-items:center;gap:10px;margin-top:6px;padding:12px;border-radius:12px;background:rgba(5,7,22,.45);border:1px solid var(--line2);font-size:12px;color:var(--dim);cursor:pointer;user-select:none;line-height:1.4}
+.auto-check input{width:18px;height:18px;accent-color:var(--primary);cursor:pointer;flex-shrink:0}
+
+.mode-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mode-seg button{padding:12px 6px;border-radius:12px;border:1px solid var(--line);background:rgba(5,7,22,.5);color:var(--dim);font-size:11px;font-weight:700;cursor:pointer;transition:var(--ease);display:flex;flex-direction:column;align-items:center;gap:6px}
+.mode-seg button i{font-size:15px}
+.mode-seg button:hover{color:#fff;border-color:var(--primary)}
+.mode-seg button.active{color:#fff;background:var(--grad-soft);border-color:var(--line3);box-shadow:0 6px 18px rgba(99,102,241,.3)}
+.mode-seg button.active i{color:var(--cyan)}
+.hint{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.45}
+.limit-row{display:flex;gap:10px;align-items:center}
+.limit-row input{flex:1}
+
+.hist-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:4px 0 15px}
+.hist-sum div{padding:12px 6px;border-radius:12px;background:rgba(5,7,22,.5);border:1px solid var(--line);text-align:center}
+.hist-sum b{display:block;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700}
+.hist-sum span{font-size:9.5px;color:var(--dim)}
+.hist-list{display:flex;flex-direction:column;gap:8px;max-height:42vh;overflow-y:auto;margin-top:6px}
+.hist-row{display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:center;padding:11px 12px;border-radius:12px;background:rgba(5,7,22,.5);border:1px solid var(--line2)}
+.hist-row .hi{width:34px;height:34px;border-radius:10px;background:var(--grad-soft);display:grid;place-items:center;color:var(--cyan);font-size:13px}
+.hist-row .hm{min-width:0}
+.hist-row .hm b{display:block;font-size:12.5px;font-weight:700}
+.hist-row .hm span{font-size:10.5px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.hist-row .hg{text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--ok);font-size:13px}
+.hist-empty{text-align:center;padding:28px 10px;color:var(--dim);font-size:12.5px}
+.hist-empty i{font-size:24px;color:var(--primary);display:block;margin-bottom:10px}
+
+/* ===== TOAST ===== */
+.toasts{position:fixed;bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));right:14px;left:14px;z-index:200;display:flex;flex-direction:column;align-items:flex-end;gap:9px;pointer-events:none}
+.toast{max-width:100%;background:rgba(14,18,48,.97);border:1px solid var(--line);border-left:4px solid var(--primary);padding:12px 16px;border-radius:12px;display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:tin .35s var(--ease) both;pointer-events:auto}
+.toast.success{border-left-color:var(--ok)}.toast.error{border-left-color:var(--err)}.toast.hide{opacity:0;transform:translateX(30px);transition:.35s}
+@keyframes tin{from{opacity:0;transform:translateX(40px)}}
+
+/* ===== RTL ===== */
+[dir=rtl] .search i{left:auto;right:14px}
+[dir=rtl] .search input{padding:13px 40px 13px 14px}
+[dir=rtl] .node::before{left:auto;right:0}
+[dir=rtl] .info-row b{text-align:left}
+[dir=rtl] .toasts{align-items:flex-start}
+[dir=rtl] .card::before{left:50%}
+
+/* ===== DESKTOP ===== */
+@media(min-width:760px){
+  .page{padding:24px 26px calc(var(--nav-h) + 30px)}
+  .stat-grid{grid-template-columns:repeat(4,1fr);gap:14px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+  .batch-grid{grid-template-columns:1.8fr 1fr 1fr}
+  .batch-grid .file-field{grid-column:auto}
+  .batch-actions{grid-column:auto;grid-template-columns:1fr}
+  .modal{align-items:center;padding:16px}
+  .card{border-radius:22px;transform:translateY(30px) scale(.96)}
+  .card::before{display:none}
+  .modal.active .card{transform:none}
+  .donate{display:grid;grid-template-columns:1.2fr 1fr;align-items:start}
+  .row-actions{grid-template-columns:auto auto auto;justify-content:start}
+  .row-actions .btn{padding:11px 18px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+  <header class="appbar">
+    <div class="ab-left">
+      <div class="ab-logo"><i class="fa-solid fa-fire"></i></div>
+      <div class="ab-title"><b id="topTitle">Dashboard</b><small>FreeFire BR Bot Panel</small></div>
+    </div>
+    <div class="ab-right">
+      <div class="pill" id="pill"><i class="dot"></i><span id="side-status">ONLINE</span></div>
+      <select class="lang" id="lang" aria-label="Language"><option value="en">EN</option><option value="id">ID</option><option value="ar">AR</option><option value="ne">NE</option><option value="hi">HI</option></select>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- ===== DASHBOARD ===== -->
+    <section id="page-core" class="page active">
+      <div class="welcome">
+        <div class="welcome-txt"><b>Dashboard</b><span>Signed in as <strong>Administrator</strong></span></div>
+        <button class="icon-btn" onclick="fetchStats()" title="Refresh"><i class="fa-solid fa-rotate"></i></button>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="sc-top"><span>Total Matches Played</span><i class="fa-solid fa-chart-simple"></i></div><div class="sc-val" id="stat-started">0</div><div class="sc-foot" id="stat-per-hour">~0 / hour</div></div>
+        <div class="stat-card"><div class="sc-top"><span>Total Current EXP</span><i class="fa-solid fa-fire"></i></div><div class="sc-val" id="stat-exp">+0</div><div class="sc-foot" id="stat-exp-rate">~0 EXP/hr</div></div>
+        <div class="stat-card"><div class="sc-top"><span>In Match Now</span><i class="fa-solid fa-circle-play"></i></div><div class="sc-val" id="stat-active-matches">0</div><div class="sc-foot">Live right now</div></div>
+        <div class="stat-card"><div class="sc-top"><span>Online / Ready</span><i class="fa-solid fa-power-off"></i></div><div class="sc-val" id="stat-accounts">0</div><div class="sc-foot" id="stat-online">0 Online</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><b>Status Breakdown</b><span><i class="fa-solid fa-clock"></i> <span id="stat-uptime">00:00:00</span></span></div>
+        <div class="breakdown">
+          <div class="bd-row"><span class="bd-dot" style="--c:var(--cyan)"></span>In Match<b id="bd-inmatch">0</b></div>
+          <div class="bd-row"><span class="bd-dot" style="--c:var(--warn)"></span>Matchmaking<b id="bd-search">0</b></div>
+          <div class="bd-row"><span class="bd-dot" style="--c:var(--ok)"></span>Online / Ready<b id="bd-online">0</b></div>
+          <div class="bd-row"><span class="bd-dot" style="--c:var(--dim)"></span>Paused<b id="bd-paused">0</b></div>
+          <div class="bd-row"><span class="bd-dot" style="--c:var(--err)"></span>Errors<b id="bd-errors">0</b></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><b>Accounts</b><button class="link-btn" onclick="go('targets')">View all</button></div>
+        <div class="mini-list" id="mini-accounts"><div class="hist-empty">No accounts yet.</div></div>
+      </div>
+    </section>
+
+    <!-- ===== BOTS ===== -->
+    <section id="page-targets" class="page">
+      <div class="page-head">
+        <div><h2 class="page-title">Bots</h2><p class="page-sub">Manage connected accounts</p></div>
+      </div>
+      <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input id="account-search" type="text" placeholder="Search UID or nickname..." oninput="filterAccounts()"></div>
+      <div class="filter-row">
+        <div class="seg" id="node-filters">
+          <button class="active" onclick="setFilter('all',this)">All</button>
+          <button onclick="setFilter('in_match',this)">Match</button>
+          <button onclick="setFilter('online',this)">Online</button>
+          <button onclick="setFilter('paused',this)">Stopped</button>
+        </div>
+      </div>
+      <div class="row-actions">
+        <button class="btn primary" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Add Account</button>
+        <button class="btn" onclick="startAllAccounts()"><i class="fa-solid fa-play"></i> Start All</button>
+        <button class="btn" onclick="stopAllAccounts()"><i class="fa-solid fa-stop"></i> Stop All</button>
+      </div>
+      <div class="batch-box" id="batch-box">
+        <div class="batch-toggle" onclick="toggleBatch()">
+          <i class="fa-solid fa-file-arrow-up lead"></i><b>Batch Import (JSON / TXT)</b><i class="fa-solid fa-chevron-down chev"></i>
+        </div>
+        <div class="batch-body">
+          <div class="batch-sub">Upload a JSON file or a TXT file with one <b>uid:password</b> per line, then choose the account range to import.</div>
+          <div class="batch-grid">
+            <div class="field file-field"><label>Account File (JSON / TXT)</label><input id="batch-file" type="file" accept=".json,.txt,application/json,text/plain" onchange="previewBatchFile()"></div>
+            <div class="field"><label>Start #</label><input id="batch-start" type="number" min="1" value="1" oninput="updateBatchPreview()"></div>
+            <div class="field"><label>How many</label><input id="batch-count" type="number" min="1" max="500" value="10" oninput="updateBatchPreview()"></div>
+            <div class="batch-actions">
+              <button class="btn primary" type="button" onclick="submitBatchImport()"><i class="fa-solid fa-upload"></i> Import</button>
+              <button class="btn danger" type="button" onclick="deleteAllAccounts()"><i class="fa-solid fa-trash-can"></i> Delete All</button>
+            </div>
+          </div>
+          <div class="batch-preview" id="batch-preview">Select a JSON or TXT file to see the total accounts and the selected range here.</div>
+          <label class="auto-check" style="margin-top:12px"><input type="checkbox" id="batch-auto-match"> <span>Auto-match: start playing imported accounts right away</span></label>
+          <button class="btn" type="button" style="margin-top:10px;width:100%" onclick="useNextBatch()"><i class="fa-solid fa-forward"></i> Next Batch</button>
+        </div>
+      </div>
+      <div class="grid" id="accounts-container">
+        <div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>Connecting to backend...</div>
+      </div>
+    </section>
+
+    <!-- ===== LOGS ===== -->
+    <section id="page-terminal" class="page">
+      <div class="page-head">
+        <div><h2 class="page-title">Logs</h2><p class="page-sub">Live backend execution logs</p></div>
+        <div class="row">
+          <button class="btn" id="btn-autoscroll" onclick="toggleAutoScroll()"><i class="fa-solid fa-arrow-down"></i></button>
+          <button class="btn danger" onclick="clearLogs()"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="filter-row">
+        <div class="seg" id="log-filters">
+          <button class="active" onclick="setLogFilter('all',this)">All</button>
+          <button onclick="setLogFilter('match',this)">Match</button>
+          <button onclick="setLogFilter('success',this)">EXP / Success</button>
+          <button onclick="setLogFilter('error',this)">Error</button>
+        </div>
+      </div>
+      <div class="term">
+        <div class="term-head">bot@backend:~#</div>
+        <div class="term-body" id="console-stream" onscroll="handleLogScroll()"></div>
+      </div>
+    </section>
+
+    <!-- ===== PROFILE ===== -->
+    <section id="page-profile" class="page">
+      <div class="page-head">
+        <div><h2 class="page-title">Profile</h2><p class="page-sub">Identity and operational summary</p></div>
+      </div>
+      <div class="hero">
+        <div class="hero-banner"></div>
+        <div class="hero-body">
+          <div class="hero-avatar">FF</div>
+          <div>
+            <div class="hero-name">FreeFire BR Bot</div>
+            <div class="hero-tag">Level-Up Automation Panel</div>
+          </div>
+          <div class="chips">
+            <span class="chip"><i class="fa-solid fa-shield-halved"></i>Admin</span>
+            <span class="chip"><i class="fa-solid fa-circle-check"></i><span id="p-status">Online</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="sc-top"><span>Accounts</span><i class="fa-solid fa-robot"></i></div><div class="sc-val" id="p-nodes">0</div><div class="sc-foot">Managed</div></div>
+        <div class="stat-card"><div class="sc-top"><span>Matches</span><i class="fa-solid fa-bolt"></i></div><div class="sc-val" id="p-matches">0</div><div class="sc-foot">Started</div></div>
+        <div class="stat-card"><div class="sc-top"><span>Total EXP</span><i class="fa-solid fa-fire"></i></div><div class="sc-val" id="p-exp">+0</div><div class="sc-foot">Harvested</div></div>
+        <div class="stat-card"><div class="sc-top"><span>EXP / Hour</span><i class="fa-solid fa-gauge-high"></i></div><div class="sc-val" id="p-rate">0</div><div class="sc-foot">Average</div></div>
+      </div>
+      <div class="info">
+        <div class="info-row"><span>Panel</span><b>FreeFire BR Bot</b></div>
+        <div class="info-row"><span>Dashboard</span><b>Command Center</b></div>
+        <div class="info-row"><span>Role</span><b>Administrator</b></div>
+        <div class="info-row"><span>Session Uptime</span><b id="p-uptime">00:00:00</b></div>
+      </div>
+    </section>
+
+    <!-- ===== DONATE ===== -->
+    <section id="page-donate" class="page">
+      <div class="page-head">
+        <div><h2 class="page-title">Donate</h2><p class="page-sub">Support the bot development</p></div>
+      </div>
+      <div class="donate">
+        <div class="d-card">
+          <div class="d-heart"><i class="fa-solid fa-heart"></i></div>
+          <h2>Thank you for your support</h2>
+          <p>Your donation helps keep the servers running and drives new feature development. Every amount means a lot.</p>
+          <div class="d-label"><i class="fa-solid fa-circle-dollar-to-slot"></i>BINANCE PAY ID</div>
+          <div class="d-id">
+            <code id="binance-id">1282491012</code>
+            <button class="btn gold" onclick="copyText('1282491012','Binance ID')"><i class="fa-regular fa-copy"></i>Copy</button>
+          </div>
+        </div>
+        <div class="d-card">
+          <h2 style="font-size:16px;margin-bottom:16px">How to donate</h2>
+          <ol class="steps">
+            <li><span data-i="s1">Open the <b>Binance</b> app and choose <b>Pay</b></span></li>
+            <li><span data-i="s2">Choose <b>Send</b> and enter the Binance ID shown beside</span></li>
+            <li><span data-i="s3">Enter the donation amount, then confirm the payment</span></li>
+          </ol>
+          <div class="d-note"><i class="fa-solid fa-triangle-exclamation"></i> <span data-i="note">Double-check the ID before sending. Crypto transactions cannot be reversed.</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottomnav" aria-label="Main navigation">
+    <button class="nav-item active" data-page="core" data-title="Dashboard"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></button>
+    <button class="nav-item" data-page="targets" data-title="Bots"><i class="fa-solid fa-robot"></i><span>Bots</span></button>
+    <button class="nav-item" data-page="terminal" data-title="Logs"><i class="fa-solid fa-terminal"></i><span>Logs</span></button>
+    <button class="nav-item" data-page="profile" data-title="Profile"><i class="fa-solid fa-id-badge"></i><span>Profile</span></button>
+    <button class="nav-item" data-page="donate" data-title="Donate"><i class="fa-solid fa-heart"></i><span>Donate</span></button>
+  </nav>
+
+  <div class="modal" id="addModal">
+    <div class="card">
+      <h2><i class="fa-solid fa-plus" style="color:var(--cyan)"></i> Add Account</h2>
+      <p>Enter credentials to run a new bot instance on the server.</p>
+      <form onsubmit="submitAddAccount(event)">
+        <div class="field"><label>Authentication type</label>
+          <select id="acc-type" onchange="toggleFormType()">
+            <option value="guest">Guest (UID / Password)</option>
+            <option value="token">Access Token</option>
+          </select></div>
+        <div id="guest-inputs">
+          <div class="field"><label>UID</label><input type="text" id="acc-uid" placeholder="Enter UID" autocomplete="off"></div>
+          <div class="field"><label>Password / Key</label><input type="password" id="acc-password" placeholder="••••••••••••" autocomplete="off"></div>
+        </div>
+        <div id="token-inputs" style="display:none"><div class="field"><label>Access token</label><textarea id="acc-token" placeholder="Paste the full token here..."></textarea></div></div>
+        <label class="auto-check"><input type="checkbox" id="acc-auto-match"> <span>Auto-match: start playing this account automatically right after it is added</span></label>
+        <div class="card-actions">
+          <button type="button" class="btn" onclick="closeAddModal()">Cancel</button>
+          <button type="submit" class="btn primary"><i class="fa-solid fa-rocket"></i> Add Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="settingsModal">
+    <div class="card">
+      <h2><i class="fa-solid fa-sliders" style="color:var(--cyan)"></i> Bot Settings</h2>
+      <p id="settings-sub">Configure match limit and game mode for this account.</p>
+      <div class="field">
+        <label>Game Mode</label>
+        <div class="mode-seg" id="mode-seg">
+          <button type="button" data-mode="BR" onclick="pickMode('BR')"><i class="fa-solid fa-trophy"></i>Battle Royale</button>
+          <button type="button" data-mode="LONE_WOLF" onclick="pickMode('LONE_WOLF')"><i class="fa-solid fa-crosshairs"></i>Lone Wolf</button>
+          <button type="button" data-mode="AUTO" onclick="pickMode('AUTO')"><i class="fa-solid fa-wand-magic-sparkles"></i>Auto</button>
+        </div>
+        <div class="hint">Auto: Battle Royale up to Level 10, then Lone Wolf.</div>
+      </div>
+      <div class="field">
+        <label>Match Limit</label>
+        <div class="limit-row"><input type="number" id="limit-input" min="0" value="0" placeholder="0 = unlimited"></div>
+        <div class="hint">0 = unlimited. After the set number of matches are played, the account stops automatically.</div>
+      </div>
+      <div class="card-actions">
+        <button type="button" class="btn" onclick="resetSettings()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+        <button type="button" class="btn" onclick="closeSettings()">Cancel</button>
+        <button type="button" class="btn primary" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="historyModal">
+    <div class="card">
+      <h2><i class="fa-solid fa-clock-rotate-left" style="color:var(--cyan)"></i> Match History</h2>
+      <p id="history-sub">Recent matches, duration and EXP gained.</p>
+      <div class="hist-sum">
+        <div><b id="hist-matches">0</b><span>Matches</span></div>
+        <div><b id="hist-exp" style="color:var(--ok)">+0</b><span>EXP Gained</span></div>
+        <div><b id="hist-time">0m</b><span>Total Time</span></div>
+      </div>
+      <div class="hist-list" id="hist-list"></div>
+      <div class="card-actions">
+        <button type="button" class="btn" onclick="closeHistory()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toastBox"></div>
+
+<script>
+const EXP_TABLE = {
+1:0,2:48,3:202,4:544,5:1012,6:1844,7:2792,8:3800,9:4870,10:6004,
+11:7192,12:8448,13:9760,14:11140,15:12566,16:14060,17:15610,18:17224,19:18902,20:20632,
+21:22424,22:24278,23:26192,24:28166,25:30200,26:32294,27:34448,28:37804,29:41274,30:44870,
+31:48582,32:53394,33:58566,34:64096,35:69994,36:76460,37:83506,38:91128,39:99322,40:108092,
+41:120144,42:133266,43:147472,44:162760,45:179126,46:196572,47:215368,48:235516,49:257010,50:279860,
+51:304056,52:348318,53:394982,54:444044,55:495508,56:549364,57:633756,58:721744,59:813336,60:908522,
+61:1041438,62:1180352,63:1325266,64:1476184,65:1634300,66:1840946,67:2056594,68:2281242,69:2514880,70:2757530,
+71:3059506,72:3372284,73:3699456,74:4041030,75:4397002,76:4829104,77:5282204,78:5756304,79:6251408,80:6776502,
+81:7381324,82:8043154,83:8752982,84:9510808,85:10316338,86:11277190,87:12291748,88:13360304,89:14482858,90:15659418,
+91:17026708,92:18453950,93:19941280,94:21488570,95:23095858,96:24763138,97:26490428,98:28378704,99:30124996,100:32032884
+};
+let cachedLogs = [], activeFilter = "all", activeLogFilter = "all", autoScroll = true, clientStart = Date.now();
+
+
+/* ---------- BAHASA (i18n) ---------- */
+const LG=["en","ar","ne","hi"], D={id:{},en:{},ar:{},ne:{},hi:{}};
+const T=[
+["Real-Time Command Center","Real-Time Command Center","مركز القيادة المباشر","रियल-टाइम कमान्ड सेन्टर","रियल-टाइम कमांड सेंटर"],
+["Command Core","Command Core","مركز التحكم","कमान्ड कोर","कमांड कोर"],
+["Target Nodes","Target Nodes","العقد المستهدفة","टार्गेट नोडहरू","टारगेट नोड्स"],
+["Uplink Terminal","Uplink Terminal","طرفية الاتصال","अपलिङ्क टर्मिनल","अपलिंक टर्मिनल"],
+["Profil CGU TEAM","CGU TEAM Profile","ملف CGU TEAM","CGU TEAM प्रोफाइल","CGU TEAM प्रोफ़ाइल"],
+["Donasi","Donate","تبرّع","दान","दान करें"],
+["Status mesin","Engine status","حالة المحرك","इन्जिन स्थिति","इंजन स्थिति"],
+["Analitik sistem secara real-time","Real-time system analytics","تحليلات النظام المباشرة","रियल-टाइम प्रणाली विश्लेषण","रियल-टाइम सिस्टम एनालिटिक्स"],
+["Sinkronkan","Sync","مزامنة","सिंक गर्नुहोस्","सिंक करें"],
+["Total node terhubung","Total linked nodes","إجمالي العقد المتصلة","जोडिएका कुल नोडहरू","कुल जुड़े नोड्स"],
+["Eksekusi dimulai","Executions started","عمليات التنفيذ المبدوءة","सुरु गरिएका कार्यान्वयन","शुरू किए गए निष्पादन"],
+["Total EXP terkumpul","Total EXP harvested","إجمالي EXP المجمّع","जम्मा गरिएको कुल EXP","कुल एकत्रित EXP"],
+["Uptime sistem","System uptime","مدة تشغيل النظام","प्रणाली अपटाइम","सिस्टम अपटाइम"],
+["Kelola akun yang terhubung","Manage connected accounts","إدارة الحسابات المتصلة","जोडिएका खाताहरू व्यवस्थापन गर्नुहोस्","जुड़े हुए खातों को प्रबंधित करें"],
+["Pause All","Pause All","إيقاف الكل مؤقتًا","सबै रोक्नुहोस्","सभी रोकें"],
+["Resume All","Resume All","استئناف الكل","सबै सुचारु गर्नुहोस्","सभी फिर शुरू करें"],
+["Inject Node","Inject Node","إضافة عقدة","नोड थप्नुहोस्","नोड जोड़ें"],
+["Semua","All","الكل","सबै","सभी"],
+["Match","Match","مباراة","म्याच","मैच"],
+["Online","Online","متصل","अनलाइन","ऑनलाइन"],
+["Paused","Paused","متوقف مؤقتًا","रोकिएको","रुका हुआ"],
+["Menghubungkan ke backend...","Connecting to backend...","جارٍ الاتصال بالخادم...","ब्याकएन्डमा जडान हुँदैछ...","बैकएंड से कनेक्ट हो रहा है..."],
+["Log eksekusi backend langsung","Live backend execution logs","سجلات تنفيذ الخادم المباشرة","ब्याकएन्ड कार्यान्वयन लाइभ लग","बैकएंड निष्पादन लॉग लाइव"],
+["Auto-scroll","Auto-scroll","تمرير تلقائي","अटो-स्क्रोल","ऑटो-स्क्रॉल"],
+["Hapus log","Clear logs","مسح السجلات","लग मेटाउनुहोस्","लॉग साफ़ करें"],
+["EXP / Sukses","EXP / Success","EXP / نجاح","EXP / सफल","EXP / सफल"],
+["Error","Error","أخطاء","त्रुटि","त्रुटि"],
+["Profil Tim","Team Profile","ملف الفريق","टोली प्रोफाइल","टीम प्रोफ़ाइल"],
+["Identitas dan ringkasan operasional","Identity and operational summary","الهوية وملخص العمليات","पहिचान र सञ्चालन सारांश","पहचान और संचालन सारांश"],
+["Admin","Admin","مشرف","एडमिन","एडमिन"],
+["Node dikelola","Nodes managed","العقد المُدارة","व्यवस्थापित नोडहरू","प्रबंधित नोड्स"],
+["EXP per jam","EXP per hour","EXP في الساعة","प्रति घण्टा EXP","प्रति घंटा EXP"],
+["Nama tim","Team name","اسم الفريق","टोलीको नाम","टीम का नाम"],
+["Dashboard","Dashboard","لوحة التحكم","ड्यासबोर्ड","डैशबोर्ड"],
+["Peran","Role","الدور","भूमिका","भूमिका"],
+["Uptime sesi","Session uptime","مدة الجلسة","सत्र अपटाइम","सत्र अपटाइम"],
+["Command Center","Command Center","مركز القيادة","कमान्ड सेन्टर","कमांड सेंटर"],
+["Administrator","Administrator","مسؤول","प्रशासक","प्रशासक"],
+["Dukung pengembangan CGU TEAM","Support CGU TEAM development","ادعم تطوير CGU TEAM","CGU TEAM को विकासमा सहयोग गर्नुहोस्","CGU TEAM के विकास में सहयोग करें"],
+["Terima kasih sudah mendukung","Thank you for your support","شكرًا لدعمك","सहयोगका लागि धन्यवाद","सहयोग के लिए धन्यवाद"],
+["Donasi kamu membantu menjaga server tetap menyala dan mendorong pengembangan fitur baru. Berapa pun jumlahnya sangat berarti.","Your donation helps keep the servers running and drives new feature development. Every amount means a lot.","تبرعك يساعد في إبقاء الخوادم تعمل ويدعم تطوير ميزات جديدة. كل مبلغ له قيمة كبيرة.","तपाईंको दानले सर्भर चलिरहन र नयाँ सुविधाहरू विकास गर्न मद्दत गर्छ। जतिसुकै रकम पनि अत्यन्त महत्त्वपूर्ण छ।","आपके दान से सर्वर चालू रहते हैं और नई सुविधाओं का विकास होता है। हर राशि बहुत मायने रखती है।"],
+["Salin","Copy","نسخ","प्रतिलिपि","कॉपी करें"],
+["Cara donasi","How to donate","طريقة التبرع","दान गर्ने तरिका","दान कैसे करें"],
+["Inject node baru","Inject new node","إضافة عقدة جديدة","नयाँ नोड थप्नुहोस्","नया नोड जोड़ें"],
+["Masukkan kredensial untuk menjalankan instance baru di server.","Enter credentials to run a new instance on the server.","أدخل بيانات الاعتماد لتشغيل نسخة جديدة على الخادم.","सर्भरमा नयाँ इन्स्ट्यान्स चलाउन क्रेडेन्सियल प्रविष्ट गर्नुहोस्।","सर्वर पर नया इंस्टेंस चलाने के लिए क्रेडेंशियल दर्ज करें।"],
+["Tipe autentikasi","Authentication type","نوع المصادقة","प्रमाणीकरण प्रकार","प्रमाणीकरण प्रकार"],
+["Guest (UID / Password)","Guest (UID / Password)","ضيف (UID / كلمة المرور)","गेस्ट (UID / पासवर्ड)","गेस्ट (UID / पासवर्ड)"],
+["Access Token","Access Token","رمز الوصول","एक्सेस टोकन","एक्सेस टोकन"],
+["Password / Key","Password / Key","كلمة المرور / المفتاح","पासवर्ड / की","पासवर्ड / की"],
+["Access token","Access token","رمز الوصول","एक्सेस टोकन","एक्सेस टोकन"],
+["Batal","Cancel","إلغاء","रद्द गर्नुहोस्","रद्द करें"],
+["Deploy node","Deploy node","تشغيل العقدة","नोड डिप्लोय गर्नुहोस्","नोड डिप्लॉय करें"],
+["Cari UID atau nickname...","Search UID or nickname...","ابحث عن UID أو الاسم...","UID वा उपनाम खोज्नुहोस्...","UID या निकनेम खोजें..."],
+["Masukkan UID","Enter UID","أدخل UID","UID प्रविष्ट गर्नुहोस्","UID दर्ज करें"],
+["Tempel token lengkap di sini...","Paste the full token here...","الصق الرمز كاملًا هنا...","पूरा टोकन यहाँ टाँस्नुहोस्...","पूरा टोकन यहाँ पेस्ट करें..."],
+["ONLINE","ONLINE","متصل","अनलाइन","ऑनलाइन"],
+["OFFLINE","OFFLINE","غير متصل","अफलाइन","ऑफ़लाइन"],
+["Offline","Offline","غير متصل","अफलाइन","ऑफ़लाइन"],
+["PAUSED","PAUSED","متوقف","रोकिएको","रुका हुआ"],
+["IN MATCH","IN MATCH","في مباراة","म्याचमा","मैच में"],
+["SEARCHING","SEARCHING","جارٍ البحث","खोजिँदैछ","खोज रहा है"],
+["Base EXP","Base EXP","EXP الأساسي","आधार EXP","बेस EXP"],
+["Current","Current","الحالي","हालको","वर्तमान"],
+["Harvested","Harvested","المجمّع","संकलित","एकत्रित"],
+["{0} EXP lagi","{0} EXP left","متبقي {0} EXP","{0} EXP बाँकी","{0} EXP शेष"],
+["Salin UID","Copy UID","نسخ UID","UID कपी गर्नुहोस्","UID कॉपी करें"],
+["Resume","Resume","استئناف","सुचारु गर्नुहोस्","फिर शुरू करें"],
+["Pause","Pause","إيقاف مؤقت","रोक्नुहोस्","रोकें"],
+["Restart","Restart","إعادة التشغيل","पुनः सुरु गर्नुहोस्","पुनः आरंभ करें"],
+["Sync","Sync","مزامنة","सिंक","सिंक"],
+["Hapus","Delete","حذف","मेटाउनुहोस्","हटाएं"],
+["UID dan password wajib diisi","UID and password are required","UID وكلمة المرور مطلوبان","UID र पासवर्ड आवश्यक छ","UID और पासवर्ड आवश्यक हैं"],
+["Token wajib diisi","Token is required","الرمز مطلوب","टोकन आवश्यक छ","टोकन आवश्यक है"],
+["Node berhasil di-deploy","Node deployed successfully","تم تشغيل العقدة بنجاح","नोड सफलतापूर्वक डिप्लोय भयो","नोड सफलतापूर्वक डिप्लॉय हुआ"],
+["Gagal deploy node","Failed to deploy node","فشل تشغيل العقدة","नोड डिप्लोय गर्न असफल","नोड डिप्लॉय करने में विफल"],
+["Koneksi ke backend gagal","Backend connection failed","فشل الاتصال بالخادم","ब्याकएन्ड जडान असफल","बैकएंड कनेक्शन विफल"],
+["Hapus node {0}? Tindakan ini tidak bisa dibatalkan.","Delete node {0}? This cannot be undone.","حذف العقدة {0}؟ لا يمكن التراجع عن هذا الإجراء.","नोड {0} मेटाउने? यो कार्य पूर्ववत गर्न सकिँदैन।","नोड {0} हटाएं? यह क्रिया पूर्ववत नहीं की जा सकती।"],
+["Node {0} dihapus","Node {0} deleted","تم حذف العقدة {0}","नोड {0} मेटाइयो","नोड {0} हटा दिया गया"],
+["Gagal menghapus","Failed to delete","فشل الحذف","मेटाउन असफल","हटाने में विफल"],
+["Sinkronisasi {0}...","Syncing {0}...","جارٍ مزامنة {0}...","{0} सिंक हुँदैछ...","{0} सिंक हो रहा है..."],
+["Sinkronisasi gagal","Sync failed","فشلت المزامنة","सिंक असफल","सिंक विफल"],
+["Restart proses {0}...","Restarting process {0}...","جارٍ إعادة تشغيل {0}...","{0} प्रक्रिया पुनः सुरु हुँदैछ...","{0} प्रक्रिया पुनः आरंभ हो रही है..."],
+["Restart gagal","Restart failed","فشلت إعادة التشغيل","पुनः सुरु असफल","पुनः आरंभ विफल"],
+["{0} dijeda","{0} paused","تم إيقاف {0} مؤقتًا","{0} रोकियो","{0} रोका गया"],
+["{0} dilanjutkan","{0} resumed","تم استئناف {0}","{0} सुचारु भयो","{0} फिर शुरू हुआ"],
+["Aksi gagal","Action failed","فشل الإجراء","कार्य असफल","क्रिया विफल"],
+["Semua node dijeda","All nodes paused","تم إيقاف كل العقد مؤقتًا","सबै नोड रोकिए","सभी नोड रोके गए"],
+["Semua node berjalan","All nodes running","كل العقد تعمل","सबै नोड चलिरहेका छन्","सभी नोड चल रहे हैं"],
+["Gagal","Failed","فشل","असफल","विफल"],
+["Belum ada node aktif.","No active nodes yet.","لا توجد عقد نشطة بعد.","अहिलेसम्म कुनै सक्रिय नोड छैन।","अभी कोई सक्रिय नोड नहीं है।"],
+["Inject node pertama","Inject your first node","أضف أول عقدة","पहिलो नोड थप्नुहोस्","पहला नोड जोड़ें"],
+["Log server dibersihkan","Server logs cleared","تم مسح سجلات الخادم","सर्भर लग मेटाइयो","सर्वर लॉग साफ़ किए गए"],
+["Gagal menghapus log di backend","Failed to clear logs on backend","فشل مسح السجلات على الخادم","ब्याकएन्डमा लग मेटाउन असफल","बैकएंड पर लॉग साफ़ करने में विफल"],
+["{0} disalin: {1}","{0} copied: {1}","تم نسخ {0}: {1}","{0} कपी गरियो: {1}","{0} कॉपी किया गया: {1}"],
+["{0} akun total","{0} accounts total","إجمالي {0} حساب","{0} कुल खाते","{0} कुल खाता"],
+["{0} Node terhubung","{0} nodes connected","{0} عقدة متصلة","{0} नोड जोडिएका","{0} नोड जुड़े"],
+["~{0} / jam","~{0} / hour","~{0} / ساعة","~{0} / घण्टा","~{0} / घंटा"],
+["~{0} EXP/jam","~{0} EXP/hr","~{0} EXP/ساعة","~{0} EXP/घण्टा","~{0} EXP/घंटा"],
+["{0} Aktif","{0} Active","{0} نشط","{0} सक्रिय","{0} सक्रिय"],
+["s1","Open the <b>Binance</b> app and choose <b>Pay</b>","افتح تطبيق <b>Binance</b> واختر <b>Pay</b>","<b>Binance</b> एप खोल्नुहोस् र <b>Pay</b> छान्नुहोस्","<b>Binance</b> ऐप खोलें और <b>Pay</b> चुनें"],
+["s2","Choose <b>Send</b> and enter the Binance ID shown beside","اختر <b>Send</b> وأدخل معرّف Binance الظاهر بجانبه","<b>Send</b> छान्नुहोस् र छेउमा देखाइएको Binance ID हाल्नुहोस्","<b>Send</b> चुनें और बगल में दिखाया गया Binance ID दर्ज करें"],
+["s3","Enter the donation amount, then confirm the payment","أدخل مبلغ التبرع ثم أكّد الدفع","दान रकम राख्नुहोस्, त्यसपछि भुक्तानी पुष्टि गर्नुहोस्","दान की राशि दर्ज करें, फिर भुगतान की पुष्टि करें"],
+["note","Double-check the ID before sending. Crypto transactions cannot be reversed.","تحقق من المعرّف جيدًا قبل الإرسال. لا يمكن التراجع عن معاملات العملات الرقمية.","पठाउनु अघि ID दोहोर्‍याएर जाँच गर्नुहोस्। क्रिप्टो लेनदेन फिर्ता गर्न सकिँदैन।","भेजने से पहले ID दोबारा जांच लें। क्रिप्टो लेनदेन वापस नहीं किए जा सकते।"]
+];
+T.forEach(r => LG.forEach((l,i) => D[l][r[0]] = r[i+1]));
+const ID_HTML = {
+  s1:"Buka aplikasi <b>Binance</b> lalu pilih <b>Pay</b>",
+  s2:"Pilih <b>Send</b> dan masukkan Binance ID di samping",
+  s3:"Isi jumlah donasi, lalu konfirmasi pembayaran",
+  note:"Periksa kembali ID sebelum mengirim. Transaksi kripto tidak bisa dibatalkan."
+};
+const PH = {"account-search":"Cari UID atau nickname...","acc-uid":"Masukkan UID","acc-token":"Tempel token lengkap di sini..."};
+let lang = "en";
+function t(key, ...a){
+  let s = lang === "id" ? (ID_HTML[key] ?? key) : ((D[lang] && D[lang][key]) ?? key);
+  return s.replace(/\{(\d)\}/g, (m,i) => a[i] ?? m);
+}
+function walkText(root){
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {acceptNode: n =>
+    n.parentElement && n.parentElement.closest("#console-stream,#toastBox,script,style") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT});
+  let n;
+  while((n = w.nextNode())){
+    const raw = n.nodeValue, key = n._k || raw.trim();
+    if(!key || (!n._k && !(key in D.en))) continue;
+    n._k = key;
+    const tr = t(key), cur = raw.trim();
+    n.nodeValue = raw.replace(cur, () => tr);
+  }
+}
+function applyLang(l, refetch = true){
+  if(!D[l]) l = "en";
+  lang = l;
+  try{ localStorage.setItem("lang", l); }catch(e){}
+  document.documentElement.lang = l;
+  document.documentElement.dir = l === "ar" ? "rtl" : "ltr";
+  document.getElementById("lang").value = l;
+  walkText(document.body);
+  document.querySelectorAll("[data-i]").forEach(el => { el.innerHTML = t(el.dataset.i); });
+  for(const id in PH){ const el = document.getElementById(id); if(el) el.placeholder = t(PH[id]); }
+  const act = document.querySelector(".nav-item.active");
+  if(act) document.getElementById("topTitle").textContent = t(act.dataset.title);
+  setStatus(lastOn);
+  if(refetch) fetchStats();
+}
+document.getElementById("lang").addEventListener("change", e => applyLang(e.target.value));
+
+/* ---------- NAVIGATION (bottom nav) ---------- */
+function go(page){
+  const btn = document.querySelector('.nav-item[data-page="' + page + '"]');
+  if(btn) btn.click();
+}
+document.addEventListener("keydown", e => { if(e.key === "Escape"){ closeAddModal(); closeSettings(); closeHistory(); } });
+document.getElementById("addModal").addEventListener("click", e => { if(e.target.id === "addModal") closeAddModal(); });
+document.getElementById("settingsModal").addEventListener("click", e => { if(e.target.id === "settingsModal") closeSettings(); });
+document.getElementById("historyModal").addEventListener("click", e => { if(e.target.id === "historyModal") closeHistory(); });
+
+document.querySelectorAll(".nav-item").forEach(btn => btn.addEventListener("click", () => {
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  btn.classList.add("active");
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  const pg = document.getElementById("page-" + btn.dataset.page);
+  if(pg){ pg.classList.add("active"); pg.scrollTop = 0; }
+  document.getElementById("topTitle").textContent = t(btn.dataset.title);
+}));
+
+function toggleBatch(){ const b = document.getElementById("batch-box"); if(b) b.classList.toggle("open"); }
+
+/* ---------- UI helpers ---------- */
+function toast(message, type = "info"){
+  message = t(message);
+  const box = document.getElementById("toastBox"), el = document.createElement("div");
+  el.className = "toast " + type;
+  const ic = type === "success" ? '<i class="fa-solid fa-check" style="color:var(--ok)"></i>'
+           : type === "error" ? '<i class="fa-solid fa-triangle-exclamation" style="color:var(--err)"></i>'
+           : '<i class="fa-solid fa-circle-info" style="color:var(--violet)"></i>';
+  el.innerHTML = `${ic}<span>${esc(message)}</span>`;
+  box.appendChild(el);
+  setTimeout(() => { el.classList.add("hide"); setTimeout(() => el.remove(), 400); }, 4000);
+}
+function openAddModal(){ document.getElementById("addModal").classList.add("active"); }
+function closeAddModal(){ document.getElementById("addModal").classList.remove("active"); }
+function toggleFormType(){
+  const t = document.getElementById("acc-type").value;
+  document.getElementById("guest-inputs").style.display = t === "guest" ? "block" : "none";
+  document.getElementById("token-inputs").style.display = t === "token" ? "block" : "none";
+}
+
+/* ---------- API actions ---------- */
+async function post(url, body){
+  const r = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body: body ? JSON.stringify(body) : undefined});
+  return r.json();
+}
+async function submitAddAccount(e){
+  e.preventDefault();
+  const type = document.getElementById("acc-type").value;
+  const autoEl = document.getElementById("acc-auto-match");
+  const autoMatch = !!(autoEl && autoEl.checked);
+  let payload;
+  if(type === "guest"){
+    const uid = document.getElementById("acc-uid").value.trim(), pass = document.getElementById("acc-password").value.trim();
+    if(!uid || !pass){ toast("UID and password are required", "error"); return; }
+    payload = {uid, password: pass, auto_match: autoMatch};
+  } else {
+    const token = document.getElementById("acc-token").value.trim();
+    if(!token){ toast("Token is required", "error"); return; }
+    payload = {token, auto_match: autoMatch};
+  }
+  try{
+    const d = await post("/api/account/add", payload);
+    if(d.status === "ok"){ closeAddModal(); toast("Account added successfully", "success"); fetchStats(); }
+    else toast(d.error || "Failed to add account", "error");
+  }catch(err){ toast("Backend connection failed", "error"); }
+}
+let batchJsonTotal = 0;
+let batchJsonValid = false;
+
+function getBatchRange(){
+  const start = Math.max(1, parseInt(document.getElementById("batch-start").value || "1", 10));
+  const count = Math.max(1, Math.min(500, parseInt(document.getElementById("batch-count").value || "1", 10)));
+  return {start, count};
+}
+
+async function previewBatchFile(){
+  const input = document.getElementById("batch-file"), preview = document.getElementById("batch-preview");
+  batchJsonTotal = 0; batchJsonValid = false;
+  if(!input.files || !input.files[0]){ updateBatchPreview(); return; }
+  const fname = (input.files[0].name || "").toLowerCase();
+  try{
+    const text = await input.files[0].text();
+    let list = null;
+    if(fname.endsWith(".txt")){
+      list = parseTxtAccounts(text);
+    } else {
+      try{
+        const data = JSON.parse(text.replace(/^\uFEFF/, ""));
+        list = Array.isArray(data) ? data : (Array.isArray(data.accounts) ? data.accounts : (Array.isArray(data.data) ? data.data : data.users));
+      }catch(jsonErr){
+        list = parseTxtAccounts(text);
+      }
+    }
+    if(!Array.isArray(list)) throw new Error("Could not read the file as JSON or TXT");
+    batchJsonTotal = list.length; batchJsonValid = batchJsonTotal > 0;
+    updateBatchPreview();
+  }catch(e){
+    preview.innerHTML = '<strong style="color:var(--err)">Invalid file:</strong> ' + esc(e.message || "Could not read file");
+  }
+}
+function parseTxtAccounts(text){
+  const out = [];
+  String(text || "").split(/\r?\n/).forEach(line => {
+    const raw = line.trim();
+    if(!raw || raw.startsWith("#")) return;
+    const parts = raw.split(/[:|,\t ]+/).filter(Boolean);
+    if(parts.length >= 2) out.push({uid: parts[0].trim(), password: parts[1].trim()});
+  });
+  return out;
+}
+
+function updateBatchPreview(){
+  const preview = document.getElementById("batch-preview");
+  const {start,count} = getBatchRange();
+  if(!batchJsonTotal){
+    preview.innerHTML = 'Select a JSON or TXT file to see the total accounts and the selected range here. Example: Start 1 + Count 10 &rarr; Accounts 1&ndash;10.';
+    return;
+  }
+  if(start > batchJsonTotal){
+    preview.innerHTML = '<strong style="color:var(--err)">Start #' + start + ' is outside JSON.</strong> Total accounts: ' + batchJsonTotal;
+    return;
+  }
+  const end = Math.min(batchJsonTotal, start + count - 1);
+  preview.innerHTML = '<strong>Total: ' + batchJsonTotal + '</strong> · Selected: <strong>' + start + '–' + end + '</strong> (' + (end-start+1) + ' account' + ((end-start+1)!==1?'s':'') + ')';
+}
+
+function useNextBatch(){
+  const d = window.lastImportState || {};
+  const next = Number(d.last_end || 0) + 1;
+  if(next > 1) document.getElementById("batch-start").value = next;
+  updateBatchPreview();
+  toast(next > 1 ? "Next batch start set to #" + next : "Start is already #1", "success");
+}
+
+async function submitBatchImport(){
+  const input = document.getElementById("batch-file");
+  if(!input.files || !input.files[0]){ toast("Please select a JSON or TXT file", "error"); return; }
+  const {start,count} = getBatchRange();
+  if(batchJsonTotal && start > batchJsonTotal){ toast("Start account is outside the file range", "error"); return; }
+  const fd = new FormData();
+  fd.append("file", input.files[0]); fd.append("start", String(start)); fd.append("count", String(count));
+  const autoEl = document.getElementById("batch-auto-match");
+  fd.append("auto_match", (autoEl && autoEl.checked) ? "true" : "false");
+  try{
+    const r = await fetch("/api/account/import", {method:"POST", body:fd});
+    const d = await r.json();
+    if(d.status === "ok"){
+      window.lastImportState = d;
+      toast(d.message + " — next start: " + (d.next_start || "done"), "success");
+      if(d.next_start) document.getElementById("batch-start").value = d.next_start;
+      updateBatchPreview(); fetchStats();
+    }else toast(d.error || "Batch import failed", "error");
+  }catch(e){ toast("Connection / backend error", "error"); }
+}
+
+async function deleteAllAccounts(){
+  if(!confirm("Delete ALL accounts, workers and accounts.json? This cannot be undone.")) return;
+  try{
+    const d = await post("/api/account/delete-all", {});
+    if(d.status === "ok"){
+      window.lastImportState = {};
+      toast("All accounts deleted: " + d.removed, "success");
+      fetchStats();
+    }else toast(d.error || "Delete All failed", "error");
+  }catch(e){ toast("Connection / backend error", "error"); }
+}
+
+async function deleteAccount(uid, authUid = ""){
+  if(!confirm(t("Hapus node {0}? Tindakan ini tidak bisa dibatalkan.", uid))) return;
+  try{
+    const d = await post("/api/account/delete", {uid, auth_uid: authUid});
+    if(d.status === "ok"){ toast(t("Node {0} dihapus", uid), "success"); const c = document.getElementById("acc-" + uid); if(c) c.remove(); fetchStats(); }
+    else toast(d.error || "Gagal menghapus", "error");
+  }catch(e){ toast("Koneksi ke backend gagal", "error"); }
+}
+let settingsUid = null, settingsMode = "AUTO";
+async function openSettings(uid){
+  const acc = (window._accs || []).find(a => String(a.uid) === String(uid));
+  settingsUid = String(uid);
+  settingsMode = String((acc && acc.mode) || "AUTO").toUpperCase();
+  if(settingsMode !== "BR" && settingsMode !== "LONE_WOLF" && settingsMode !== "AUTO") settingsMode = "AUTO";
+  const sub = document.getElementById("settings-sub");
+  if(sub) sub.textContent = "Configure match limit and game mode for " + ((acc && acc.nickname) ? acc.nickname : uid) + ".";
+  const li = document.getElementById("limit-input");
+  if(li) li.value = Number((acc && acc.match_limit) || 0);
+  paintModeSeg();
+  document.getElementById("settingsModal").classList.add("active");
+}
+function paintModeSeg(){
+  document.querySelectorAll("#mode-seg button").forEach(b => b.classList.toggle("active", b.dataset.mode === settingsMode));
+}
+function pickMode(mode){ settingsMode = mode; paintModeSeg(); }
+function closeSettings(){ document.getElementById("settingsModal").classList.remove("active"); }
+async function saveSettings(){
+  if(!settingsUid) return;
+  const limit = Math.max(0, parseInt(document.getElementById("limit-input").value) || 0);
+  try{
+    const d = await post("/api/account/settings", {uid: settingsUid, match_limit: limit, mode: settingsMode});
+    if(d.status === "ok"){ toast("Settings saved", "success"); closeSettings(); fetchStats(); }
+    else toast(d.error || "Save failed", "error");
+  }catch(e){ toast("Connection / backend error", "error"); }
+}
+async function resetSettings(){
+  if(!settingsUid) return;
+  const li = document.getElementById("limit-input"); if(li) li.value = 0;
+  settingsMode = "AUTO"; paintModeSeg();
+  try{
+    const d = await post("/api/account/settings", {uid: settingsUid, match_limit: 0, mode: "AUTO"});
+    if(d.status === "ok"){ toast("Reset to default", "success"); closeSettings(); fetchStats(); }
+    else toast(d.error || "Reset failed", "error");
+  }catch(e){ toast("Connection / backend error", "error"); }
+}
+async function openHistory(uid){
+  const acc = (window._accs || []).find(a => String(a.uid) === String(uid));
+  const sub = document.getElementById("history-sub");
+  if(sub) sub.textContent = "Recent matches for " + ((acc && acc.nickname) ? acc.nickname : uid) + " \u2014 duration and EXP gained.";
+  document.getElementById("historyModal").classList.add("active");
+  const list = document.getElementById("hist-list");
+  list.innerHTML = '<div class="hist-empty"><i class="fa-solid fa-circle-notch fa-spin"></i>Loading...</div>';
+  try{
+    const r = await fetch("/api/account/history?uid=" + encodeURIComponent(uid));
+    const d = await r.json();
+    const items = Array.isArray(d.history) ? d.history : [];
+    document.getElementById("hist-matches").textContent = d.total_matches ?? items.length;
+    document.getElementById("hist-exp").textContent = "+" + Number(d.total_exp || 0).toLocaleString();
+    document.getElementById("hist-time").textContent = fmtDur(d.total_time || 0);
+    if(items.length === 0){ list.innerHTML = '<div class="hist-empty">No matches recorded yet.</div>'; return; }
+    list.innerHTML = items.slice().reverse().map(h => {
+      const dt = h.timestamp ? new Date(h.timestamp * 1000).toLocaleString() : (h.time || "");
+      const mode = h.mode === "LONE_WOLF" ? "Lone Wolf" : (h.mode === "BR" ? "Battle Royale" : (h.mode || "-"));
+      const exp = Number(h.exp_gained || 0);
+      return `<div class="hist-row">
+        <div class="hi"><i class="fa-solid fa-crosshairs"></i></div>
+        <div class="hm"><b>#${h.match_index ?? "-"} \u00b7 ${esc(mode)}</b><span>${esc(dt)} \u00b7 ${fmtDur(h.duration || 0)}</span></div>
+        <div class="hg">+${exp.toLocaleString()}</div>
+      </div>`;
+    }).join("");
+  }catch(e){ list.innerHTML = '<div class="hist-empty">Failed to load history.</div>'; }
+}
+function closeHistory(){ document.getElementById("historyModal").classList.remove("active"); }
+async function startAcc(uid){
+  try{ const d = await post("/api/account/start", {uid}); if(d.status === "ok"){ toast("Started " + uid, "success"); fetchStats(); } else toast(d.error || "Start failed", "error"); }
+  catch(e){ toast("Connection / backend error", "error"); }
+}
+async function stopAcc(uid){
+  try{ const d = await post("/api/account/stop", {uid}); if(d.status === "ok"){ toast("Stopped " + uid, "success"); fetchStats(); } else toast(d.error || "Stop failed", "error"); }
+  catch(e){ toast("Connection / backend error", "error"); }
+}
+async function startAllAccounts(){
+  try{ const d = await post("/api/account/start-all", {}); if(d.status === "ok"){ toast("Started " + (d.started || 0) + " account(s)", "success"); fetchStats(); } else toast(d.error || "Start All failed", "error"); }
+  catch(e){ toast("Connection / backend error", "error"); }
+}
+async function stopAllAccounts(){
+  try{ const d = await post("/api/account/stop-all", {}); if(d.status === "ok"){ toast("Stopped " + (d.stopped || 0) + " account(s)", "success"); fetchStats(); } else toast(d.error || "Stop All failed", "error"); }
+  catch(e){ toast("Connection / backend error", "error"); }
+}
+async function refreshAcc(uid){
+  try{ toast(t("Sinkronisasi {0}...", uid)); await post("/api/account/refresh", {uid}); setTimeout(fetchStats, 800); }
+  catch(e){ toast("Sinkronisasi gagal", "error"); }
+}
+async function restartAcc(uid){
+  try{ toast(t("Restart proses {0}...", uid)); await post("/api/account/restart", {uid}); setTimeout(fetchStats, 800); }
+  catch(e){ toast("Restart gagal", "error"); }
+}
+
+/* ---------- Nodes ---------- */
+function setFilter(f, btn){
+  activeFilter = f;
+  document.querySelectorAll("#node-filters button").forEach(x => x.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+  filterAccounts();
+}
+function filterAccounts(){
+  const q = (document.getElementById("account-search").value || "").toLowerCase().trim();
+  document.querySelectorAll(".node").forEach(card => {
+    const uid = (card.dataset.uid || "").toLowerCase(), nick = (card.dataset.nick || "").toLowerCase();
+    const st = (card.dataset.status || "").toLowerCase(), paused = card.dataset.paused === "1";
+    let ok = !q || uid.includes(q) || nick.includes(q);
+    if(activeFilter === "in_match") ok = ok && st.includes("match") && !paused;
+    else if(activeFilter === "online") ok = ok && (st.includes("online") || st.includes("match")) && !paused;
+    else if(activeFilter === "paused") ok = ok && paused;
+    card.style.display = ok ? "" : "none";
+  });
+}
+function renderAccounts(accounts){
+  const container = document.getElementById("accounts-container");
+
+  if(accounts.length === 0){
+    container.innerHTML = `<div class="empty"><i class="fa-solid fa-ghost"></i>${t("Belum ada node aktif.")}<br><button class="btn primary" onclick="openAddModal()">${t("Inject node pertama")}</button></div>`;
+    return;
+  }
+  container.querySelectorAll(".empty").forEach(e => e.remove());
+  const uids = new Set(accounts.map(a => String(a.uid)));
+  container.querySelectorAll(".node").forEach(c => { if(!uids.has(c.dataset.uid)) c.remove(); });
+
+  accounts.forEach(acc => {
+    const uid = String(acc.uid);
+    const level = Math.max(1, parseInt(acc.level) || 1), nextLvl = Math.min(100, level + 1);
+    const baseExp = EXP_TABLE[level] ?? 0, targetExp = EXP_TABLE[nextLvl] ?? baseExp + 50000;
+    const needed = Math.max(1, targetExp - baseExp), curExp = Number(acc.current_exp || 0);
+    const earned = Math.max(0, curExp - baseExp), remaining = Math.max(0, targetExp - curExp);
+    const pct = level >= 100 ? 100 : Math.min(100, Math.max(0, earned / needed * 100));
+    const storedMode = String(acc.mode || "AUTO").toUpperCase();
+    const running = acc.match_running === true;
+    const status = acc.status || "ONLINE";
+
+    let cls = "s-online", icon = "fa-globe";
+    if(status === "IN_MATCH"){ cls = "s-match"; icon = "fa-crosshairs"; }
+    else if(status === "SEARCHING"){ cls = "s-error"; icon = "fa-magnifying-glass"; }
+    else if(status !== "ONLINE" && status !== "CONNECTING"){ cls = "s-error"; icon = "fa-triangle-exclamation"; }
+    const stText = status === "IN_MATCH" ? `${t("IN MATCH")} (${acc.active_matches || 1})` : status === "ONLINE" ? t("ONLINE") : status === "SEARCHING" ? t("SEARCHING") : status;
+
+    const modeLabel = storedMode === "BR" ? "BR" : storedMode === "LONE_WOLF" ? "LONE WOLF" : "AUTO";
+    const limit = Number(acc.match_limit || 0);
+    const played = Number(acc.matches_played || 0);
+    const resetLabel = limit > 0 ? (Math.max(0, limit - played) + " to reset") : "Unlimited";
+    const matchesTag = (running ? "LIVE" : "IDLE") + " \u00b7 M" + played;
+
+    let card = document.getElementById("acc-" + uid);
+    if(!card){ card = document.createElement("div"); card.id = "acc-" + uid; card.className = "node"; container.appendChild(card); }
+    card.dataset.uid = uid; card.dataset.nick = acc.nickname || "";
+    card.dataset.status = cls.replace("s-", ""); card.dataset.paused = running ? "0" : "1";
+
+    card.innerHTML = `
+      <div class="node-head">
+        <div class="who">
+          <div class="avatar"><i class="fa-solid fa-user-astronaut"></i><span class="lvl">L${level}</span></div>
+          <div style="min-width:0">
+            <div class="name"><span class="nm">${esc(acc.nickname || "Unknown")}</span><span class="bot-tag">BOT</span><span class="region">${esc(acc.region || "BD")}</span></div>
+            <div class="uid">UID: ${esc(uid)} <i class="fa-regular fa-copy" onclick="copyUid('${escAttr(uid)}')" title="${t("Salin UID")}"></i></div>
+          </div>
+        </div>
+        <div class="badge ${cls}"><i class="fa-solid ${icon}"></i> ${esc(stText)}</div>
+      </div>
+      <div class="node-tags">
+        <span class="tag mode"><i class="fa-solid fa-gamepad"></i>${esc(modeLabel)}</span>
+        <span class="tag ${running ? "live" : ""}"><i class="fa-solid fa-bolt"></i>${esc(matchesTag)}</span>
+        <span class="tag"><i class="fa-solid fa-rotate-left"></i>${esc(resetLabel)}</span>
+      </div>
+      <div class="metrics">
+        <div class="metric"><span>${t("Base EXP")}</span><strong>${Number(acc.initial_exp || 0).toLocaleString()}</strong></div>
+        <div class="metric"><span>${t("Current")}</span><strong>${curExp.toLocaleString()}</strong></div>
+        <div class="metric gain"><span>${t("Harvested")}</span><strong>+${Number(acc.gained_exp || 0).toLocaleString()}</strong></div>
+      </div>
+      <div>
+        <div class="prog-top"><span>LVL ${level} \u2192 LVL ${nextLvl}</span><span>${t("{0} EXP lagi", remaining.toLocaleString())}</span></div>
+        <div class="track"><div class="fill" style="width:${pct.toFixed(1)}%"></div></div>
+        <div class="prog-bot"><span>${earned.toLocaleString()} / ${needed.toLocaleString()}</span><span class="pct">${pct.toFixed(1)}%</span></div>
+      </div>
+      <div class="node-foot">
+        <span class="time acc-time" data-uptime="${Math.floor(acc.uptime_seconds || 0)}" data-paused="${running ? 0 : 1}"><i class="fa-solid fa-stopwatch"></i> ${fmtDur(acc.uptime_seconds || 0)}</span>
+        <div class="acts">
+          <button class="act ${running ? "on" : ""}" onclick="${running ? "stopAcc" : "startAcc"}('${escAttr(uid)}')" title="${running ? "Stop" : "Start"}"><i class="fa-solid ${running ? "fa-stop" : "fa-play"}"></i></button>
+          <button class="act" onclick="restartAcc('${escAttr(uid)}')" title="${t("Restart")}"><i class="fa-solid fa-rotate-right"></i></button>
+          <button class="act" onclick="refreshAcc('${escAttr(uid)}')" title="${t("Sync")}"><i class="fa-solid fa-arrows-rotate"></i></button>
+          <button class="act" onclick="openSettings('${escAttr(uid)}')" title="Settings"><i class="fa-solid fa-sliders"></i></button>
+          <button class="act" onclick="openHistory('${escAttr(uid)}')" title="History"><i class="fa-solid fa-clock-rotate-left"></i></button>
+          <button class="act danger" onclick="deleteAccount('${escAttr(uid)}','${escAttr(acc.auth_uid || "")}')" title="${t("Hapus")}"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>`;
+  });
+  filterAccounts();
+}
+
+/* ---------- Terminal ---------- */
+function setLogFilter(f, btn){
+  activeLogFilter = f;
+  document.querySelectorAll("#log-filters button").forEach(x => x.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+  renderLogs(cachedLogs);
+}
+function renderLogs(logs){
+  const stream = document.getElementById("console-stream");
+  let list = logs || [];
+  if(activeLogFilter === "match") list = list.filter(l => String(l.message || "").toLowerCase().includes("match"));
+  else if(activeLogFilter === "success") list = list.filter(l => l.level === "success" || String(l.message || "").includes("EXP"));
+  else if(activeLogFilter === "error") list = list.filter(l => l.level === "error" || l.level === "warning");
+  stream.innerHTML = list.map(l => `<div class="log"><span class="log-ts">[${esc(l.time || "00:00:00")}]</span><span class="log-msg ${esc(l.level || "info")}">&gt; ${esc(l.message || "")}</span></div>`).join("");
+  if(autoScroll) stream.scrollTop = stream.scrollHeight;
+}
+async function clearLogs(){
+  try{ await fetch("/api/logs/clear", {method:"POST"}); cachedLogs = []; renderLogs([]); toast("Log server dibersihkan", "success"); }
+  catch(e){ toast("Gagal menghapus log di backend", "error"); }
+}
+function styleAutoScroll(){
+  const b = document.getElementById("btn-autoscroll");
+  b.style.background = autoScroll ? "var(--grad-soft)" : ""; b.style.color = autoScroll ? "#fff" : "var(--dim)";
+}
+function toggleAutoScroll(){
+  autoScroll = !autoScroll; styleAutoScroll();
+  if(autoScroll) document.getElementById("console-stream").scrollTop = 999999;
+}
+function handleLogScroll(){
+  const s = document.getElementById("console-stream");
+  if(autoScroll && s.scrollHeight - s.scrollTop - s.clientHeight > 80){ autoScroll = false; styleAutoScroll(); }
+}
+
+/* ---------- Stats ---------- */
+let lastOn = true;
+function setStatus(on){
+  lastOn = on;
+  document.getElementById("side-status").innerText = t(on ? "ONLINE" : "OFFLINE");
+  document.getElementById("pill").classList.toggle("off", !on);
+  setText("p-status", t(on ? "Online" : "Offline"));
+}
+
+async function fetchStats(){
+  try{
+    const r = await fetch("/api/stats");
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    const accs = Array.isArray(d.accounts) ? d.accounts : [], logs = Array.isArray(d.logs) ? d.logs : [];
+    const totalMatches = Number(d.total_matches ?? d.total_matches_started ?? 0);
+    const totalExp = Number(d.total_gained_exp || 0);
+    const activeNow = Number(d.total_active_matches ?? accs.filter(a => a.status === "IN_MATCH").length);
+    const uptimeH = Math.max(0.016, (d.uptime || 60) / 3600);
+    const expPerHour = Number(d.exp_per_hour ?? Math.round(totalExp / uptimeH));
+    const onlineNow = accs.filter(a => a.status === "ONLINE" || a.status === "IN_MATCH" || a.status === "CONNECTING").length;
+    setText("stat-accounts", onlineNow);
+    setText("stat-started", totalMatches);
+    setText("stat-exp", "+" + totalExp.toLocaleString());
+    setText("stat-active-matches", activeNow);
+    setText("stat-online", t("{0} akun total", accs.length));
+    setText("stat-per-hour", t("~{0} / jam", Math.round(totalMatches / uptimeH)));
+    setText("stat-exp-rate", t("~{0} EXP/jam", expPerHour.toLocaleString()));
+    setText("p-nodes", d.total_accounts ?? accs.length);
+    setText("p-matches", totalMatches);
+    setText("p-exp", "+" + totalExp.toLocaleString());
+    setText("p-rate", expPerHour.toLocaleString());
+    window.lastImportState = d.import_state || window.lastImportState || {};
+    cachedLogs = logs; window._accs = accs;
+    renderBreakdown(accs); renderMini(accs);
+    renderAccounts(accs); renderLogs(logs); setStatus(true);
+  }catch(e){ console.warn("Backend Sync Error:", e); setStatus(false); }
+}
+function renderBreakdown(accs){
+  let inMatch = 0, search = 0, online = 0, paused = 0, errors = 0;
+  accs.forEach(a => {
+    const st = String(a.status || "ONLINE");
+    const running = a.match_running === true;
+    if(st === "IN_MATCH") inMatch++;
+    else if(st === "SEARCHING") search++;
+    else if(st === "ONLINE" || st === "CONNECTING"){ if(running) online++; else paused++; }
+    else errors++;
+  });
+  setText("bd-inmatch", inMatch); setText("bd-search", search); setText("bd-online", online);
+  setText("bd-paused", paused); setText("bd-errors", errors);
+}
+function renderMini(accs){
+  const box = document.getElementById("mini-accounts");
+  if(!box) return;
+  if(accs.length === 0){ box.innerHTML = '<div class="hist-empty">No accounts yet.</div>'; return; }
+  box.innerHTML = accs.slice(0, 4).map(a => {
+    const st = String(a.status || "ONLINE");
+    let cls = "s-online", txt = t("ONLINE");
+    if(st === "IN_MATCH"){ cls = "s-match"; txt = t("IN MATCH"); }
+    else if(st === "SEARCHING"){ cls = "s-error"; txt = t("SEARCHING"); }
+    else if(st !== "ONLINE" && st !== "CONNECTING"){ cls = "s-error"; txt = st; }
+    const lvl = Math.max(1, parseInt(a.level) || 1);
+    return `<div class="mini-row">
+      <div class="mini-av"><i class="fa-solid fa-user-astronaut"></i></div>
+      <div class="mini-info"><b>${esc(a.nickname || "Unknown")}</b><span>UID ${esc(a.uid)} \u00b7 L${lvl}</span></div>
+      <span class="mini-badge ${cls}">${esc(txt)}</span>
+    </div>`;
+  }).join("");
+}
+
+/* ---------- Utils ---------- */
+function copyText(txt, label){
+  const ok = () => toast(t("{0} disalin: {1}", label, txt), "success");
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, () => toast(label + ": " + txt));
+  else toast(label + ": " + txt);
+}
+function copyUid(uid){ copyText(uid, "UID"); }
+const COUNT=new Set(["stat-accounts","stat-started","stat-exp","p-nodes","p-matches","p-exp","p-rate"]), tw={};
+function setText(id, v){
+  const el = document.getElementById(id); if(!el) return;
+  const str = String(v ?? ""), m = COUNT.has(id) && str.match(/^(\+?)([\d,]+)$/);
+  if(!m){ el.innerText = str; return; }
+  const to = parseInt(m[2].replace(/,/g,"")), from = parseFloat(el.dataset.n || 0);
+  if(from === to){ el.innerText = str; return; }
+  el.dataset.n = to; const t0 = performance.now(); cancelAnimationFrame(tw[id]);
+  const step = t => { const k = Math.min(1,(t-t0)/800), e = 1-Math.pow(1-k,3);
+    el.innerText = m[1] + Math.round(from+(to-from)*e).toLocaleString();
+    if(k<1) tw[id] = requestAnimationFrame(step); else el.innerText = str; };
+  tw[id] = requestAnimationFrame(step);
+}
+document.addEventListener("pointermove", e => {
+  const c = e.target.closest && e.target.closest(".stat,.node,.hero,.info"); if(!c) return;
+  const r = c.getBoundingClientRect();
+  c.style.setProperty("--mx",(e.clientX-r.left)+"px"); c.style.setProperty("--my",(e.clientY-r.top)+"px");
+});
+function esc(s){ return s == null ? "" : String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
+function escAttr(s){ return esc(s); }
+function fmtDur(sec){
+  sec = Math.max(0, Math.floor(Number(sec) || 0));
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+  return h > 0 ? `${h}h ${String(m).padStart(2,"0")}m` : `${String(m).padStart(2,"0")}m ${String(s).padStart(2,"0")}s`;
+}
+
+setInterval(() => {
+  const el = Math.floor((Date.now() - clientStart) / 1000), p = n => String(n).padStart(2, "0");
+  const up = `${p(Math.floor(el / 3600))}:${p(Math.floor((el % 3600) / 60))}:${p(el % 60)}`;
+  setText("stat-uptime", up); setText("p-uptime", up);
+  document.querySelectorAll(".acc-time").forEach(u => {
+    if(u.dataset.paused === "1") return;
+    const v = parseInt(u.dataset.uptime || "0") + 1;
+    u.dataset.uptime = v;
+    u.innerHTML = `<i class="fa-solid fa-stopwatch"></i> ${fmtDur(v)}`;
+  });
+}, 1000);
+
+styleAutoScroll();
+let saved = "en"; try{ saved = localStorage.getItem("lang") || "en"; }catch(e){}
+if(!["en","ar","ne","hi"].includes(saved)) saved = "en";
+applyLang(saved, false);
+fetchStats();
+setInterval(fetchStats, 5000);
+</script>
+</body>
+</html>

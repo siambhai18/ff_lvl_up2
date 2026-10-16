@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: nirobudp
+    runtime: docker
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
